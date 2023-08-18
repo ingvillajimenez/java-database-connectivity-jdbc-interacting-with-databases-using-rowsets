@@ -43,8 +43,13 @@ public class ExploringRowSets {
             displayRow("absolute(4)", jdbcRS);
             //absolute(4): Gav | Comey | 19.00 | true
 
+            System.out.println("\nSleeping for a minute...");
+            Thread.sleep(60000);
+
             jdbcRS.last();
+            jdbcRS.refreshRow();
             displayRow("last()", jdbcRS);
+            //last(): Pablo | Hernandez | 19.50 | true
             //last(): Pablo | Hernandez | 20.00 | false
 
             jdbcRS.relative(-1);
@@ -52,7 +57,7 @@ public class ExploringRowSets {
             //relative(-1): Marie | Woods | 19.00 | true
 
         }
-        catch (SQLException ex) {
+        catch (SQLException | InterruptedException ex) {
             ex.printStackTrace();
         }
 
