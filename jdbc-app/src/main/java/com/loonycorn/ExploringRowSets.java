@@ -24,40 +24,79 @@ public class ExploringRowSets {
             jdbcRS.setCommand("select * from delpartners");
             jdbcRS.execute();
 
-            System.out.println("Moving around in a JdbcRowSet: \n");
-            //Moving around in a JdbcRowSet:
+            int updatedRows = 0;
 
-            jdbcRS.first();
-            displayRow("first()", jdbcRS);
-            //first(): Adam | Bell | 18.50 | true
+            jdbcRS.setAutoCommit(false);
 
-            jdbcRS.relative(2);
-            displayRow("relative(2)", jdbcRS);
-            //relative(2): Pam | Cruz | 21.00 | true
+            while(jdbcRS.next()) {
 
-            jdbcRS.previous();
-            displayRow("previous()", jdbcRS);
-            //previous(): Eric | Jones | 22.75 | false
+                if (!jdbcRS.getBoolean("is_fulltime")) {
 
-            jdbcRS.absolute(4);
-            displayRow("absolute(4)", jdbcRS);
-            //absolute(4): Gav | Comey | 19.00 | true
+                    jdbcRS.updateDouble("hourly_rate", 23.0);
+                    jdbcRS.updateRow();
 
-            System.out.println("\nSleeping for a minute...");
-            Thread.sleep(60000);
+                    displayRow("Updated record: ", jdbcRS);
+                    //Updated record: : Eric | Jones | 23.00 | false
+                    //Updated record: : Stacey | Shields | 23.00 | false
+                    // This time it has been updated to the database
+                    updatedRows++;
+                }
+            }
 
-            jdbcRS.last();
-            jdbcRS.refreshRow();
-            displayRow("last()", jdbcRS);
-            //last(): Pablo | Hernandez | 19.50 | true
-            //last(): Pablo | Hernandez | 20.00 | false
+            jdbcRS.commit();
 
-            jdbcRS.relative(-1);
-            displayRow("relative(-1)", jdbcRS);
-            //relative(-1): Marie | Woods | 19.00 | true
+            System.out.println("\nNumber of updated rows: " + updatedRows);
+            //Number of updated rows: 2
+
+//            jdbcRS.setCommand("select * from delpartners");
+//            jdbcRS.execute();
+//
+//            int updatedRows = 0;
+//
+//            jdbcRS.setAutoCommit(false);
+//
+//            while(jdbcRS.next()) {
+//
+//                if (!jdbcRS.getBoolean("is_fulltime")) {
+//
+//                    jdbcRS.updateDouble("hourly_rate", 23.0);
+//                    jdbcRS.updateRow();
+//
+//                    displayRow("Updated record: ", jdbcRS);
+//                    //Updated record: : Eric | Jones | 23.00 | false
+//                    //Updated record: : Stacey | Shields | 23.00 | false
+//                    // The update has not taken place in the database, only in the JdbcRS object
+//                    updatedRows++;
+//                }
+//            }
+//
+//            System.out.println("\nNumber of updated rows: " + updatedRows);
+//            //Number of updated rows: 2
+
+//            jdbcRS.setCommand("select * from delpartners");
+//            jdbcRS.execute();
+//
+//            int updatedRows = 0;
+//
+//            while(jdbcRS.next()) {
+//
+//                if (!jdbcRS.getBoolean("is_fulltime")) {
+//
+//                    jdbcRS.updateDouble("hourly_rate", 21.0);
+//                    jdbcRS.updateRow();
+//
+//                    displayRow("Updated record: ", jdbcRS);
+//                    //Updated record: : Eric | Jones | 21.00 | false
+//                    //Updated record: : Stacey | Shields | 21.00 | false
+//                    updatedRows++;
+//                }
+//            }
+//
+//            System.out.println("\nNumber of updated rows: " + updatedRows);
+//            //Number of updated rows: 2
 
         }
-        catch (SQLException | InterruptedException ex) {
+        catch (SQLException ex) {
             ex.printStackTrace();
         }
 
