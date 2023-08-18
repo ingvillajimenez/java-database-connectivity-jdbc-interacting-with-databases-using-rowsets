@@ -1,9 +1,21 @@
 package com.loonycorn;
 
+import javax.sql.RowSet; // interface
 import javax.sql.rowset.JdbcRowSet; // interface JdbcRowSet
 import java.sql.SQLException; // class SQLException
 
 public class ExploringRowSets {
+
+    public static void displayRow(String label, RowSet rowSet) throws SQLException {
+
+        String fName = rowSet.getString("first_name");
+        String lName = rowSet.getString("last_name");
+        double hourlyRate = rowSet.getDouble("hourly_rate");
+        boolean isFT = rowSet.getBoolean("is_fulltime");
+
+        String stdData = "\n%s: %s | %s | %.2f | %s \n";
+        System.out.format(stdData, label, fName, lName, hourlyRate, isFT);
+    }
 
     public static void main(String[] args) {
 
@@ -12,23 +24,32 @@ public class ExploringRowSets {
             jdbcRS.setCommand("select * from delpartners");
             jdbcRS.execute();
 
-            System.out.println("The properties of JdbcRowSet are: \n");
+            System.out.println("Moving around in a JdbcRowSet: \n");
+            //Moving around in a JdbcRowSet:
 
-            System.out.println("Read-only? " + jdbcRS.isReadOnly()); //Read-only? true
-            System.out.println("Auto-commit? " + jdbcRS.getAutoCommit()); //Auto-commit? true
-            System.out.println("Fetch direction: " + jdbcRS.getFetchDirection()); //Fetch direction: 1000
-            System.out.println("Code for FETCH_FORWARD? " + jdbcRS.FETCH_FORWARD); //Code for FETCH_FORWARD? 1000
-            System.out.println("Command: " + jdbcRS.getCommand()); //Command: select * from delpartners
+            jdbcRS.first();
+            displayRow("first()", jdbcRS);
+            //first(): Adam | Bell | 18.50 | true
 
-            System.out.println("\n-------------------");
-            System.out.println("Metadata: \n" + jdbcRS.getMetaData());
-            //Metadata:
-            //com.mysql.cj.jdbc.result.ResultSetMetaData@292b08d6 - Field level information:
-            //	com.mysql.cj.result.Field@22555ebf[dbName=deliveryservice,tableName=delpartners,originalTableName=delpartners,columnName=id,originalColumnName=id,mysqlType=3(FIELD_TYPE_INT),sqlType=4,flags= AUTO_INCREMENT PRIMARY_KEY, charsetIndex=63, charsetName=ISO-8859-1]
-            //	com.mysql.cj.result.Field@36ebc363[dbName=deliveryservice,tableName=delpartners,originalTableName=delpartners,columnName=first_name,originalColumnName=first_name,mysqlType=253(FIELD_TYPE_VARCHAR),sqlType=12,flags=, charsetIndex=255, charsetName=UTF-8]
-            //	com.mysql.cj.result.Field@45752059[dbName=deliveryservice,tableName=delpartners,originalTableName=delpartners,columnName=last_name,originalColumnName=last_name,mysqlType=253(FIELD_TYPE_VARCHAR),sqlType=12,flags=, charsetIndex=255, charsetName=UTF-8]
-            //	com.mysql.cj.result.Field@34e9fd99[dbName=deliveryservice,tableName=delpartners,originalTableName=delpartners,columnName=hourly_rate,originalColumnName=hourly_rate,mysqlType=5(FIELD_TYPE_DOUBLE),sqlType=8,flags=, charsetIndex=63, charsetName=ISO-8859-1]
-            //	com.mysql.cj.result.Field@3c41ed1d[dbName=deliveryservice,tableName=delpartners,originalTableName=delpartners,columnName=is_fulltime,originalColumnName=is_fulltime,mysqlType=1(FIELD_TYPE_BIT),sqlType=-7,flags=, charsetIndex=63, charsetName=ISO-8859-1]
+            jdbcRS.relative(2);
+            displayRow("relative(2)", jdbcRS);
+            //relative(2): Pam | Cruz | 21.00 | true
+
+            jdbcRS.previous();
+            displayRow("previous()", jdbcRS);
+            //previous(): Eric | Jones | 22.75 | false
+
+            jdbcRS.absolute(4);
+            displayRow("absolute(4)", jdbcRS);
+            //absolute(4): Gav | Comey | 19.00 | true
+
+            jdbcRS.last();
+            displayRow("last()", jdbcRS);
+            //last(): Pablo | Hernandez | 20.00 | false
+
+            jdbcRS.relative(-1);
+            displayRow("relative(-1)", jdbcRS);
+            //relative(-1): Marie | Woods | 19.00 | true
 
         }
         catch (SQLException ex) {
