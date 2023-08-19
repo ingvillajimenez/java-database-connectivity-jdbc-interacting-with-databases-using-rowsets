@@ -24,81 +24,58 @@ public class ExploringRowSets {
             jdbcRS.setCommand("select * from delpartners");
             jdbcRS.execute();
 
-            int updatedRows = 0;
+            int removedRows = 0;
 
-            jdbcRS.setAutoCommit(false);
+            while (jdbcRS.next()) {
 
-            while(jdbcRS.next()) {
+                if (jdbcRS.getBoolean("is_fulltime") == true
+                        && jdbcRS.getDouble("hourly_rate") > 20) {
 
-                if (!jdbcRS.getBoolean("is_fulltime")) {
+                    displayRow("Removing row: ", jdbcRS);
+                    //Removing row: : Pam | Cruz | 21.00 | true
+                    jdbcRS.deleteRow();
 
-                    jdbcRS.updateDouble("hourly_rate", 23.0);
-                    jdbcRS.updateRow();
-
-                    displayRow("Updated record: ", jdbcRS);
-                    //Updated record: : Eric | Jones | 23.00 | false
-                    //Updated record: : Stacey | Shields | 23.00 | false
-                    // This time it has been updated to the database
-                    updatedRows++;
+                    removedRows++;
                 }
             }
 
-            jdbcRS.commit();
-
-            System.out.println("\nNumber of updated rows: " + updatedRows);
-            //Number of updated rows: 2
-
-//            jdbcRS.setCommand("select * from delpartners");
-//            jdbcRS.execute();
-//
-//            int updatedRows = 0;
-//
-//            jdbcRS.setAutoCommit(false);
-//
-//            while(jdbcRS.next()) {
-//
-//                if (!jdbcRS.getBoolean("is_fulltime")) {
-//
-//                    jdbcRS.updateDouble("hourly_rate", 23.0);
-//                    jdbcRS.updateRow();
-//
-//                    displayRow("Updated record: ", jdbcRS);
-//                    //Updated record: : Eric | Jones | 23.00 | false
-//                    //Updated record: : Stacey | Shields | 23.00 | false
-//                    // The update has not taken place in the database, only in the JdbcRS object
-//                    updatedRows++;
-//                }
-//            }
-//
-//            System.out.println("\nNumber of updated rows: " + updatedRows);
-//            //Number of updated rows: 2
-
-//            jdbcRS.setCommand("select * from delpartners");
-//            jdbcRS.execute();
-//
-//            int updatedRows = 0;
-//
-//            while(jdbcRS.next()) {
-//
-//                if (!jdbcRS.getBoolean("is_fulltime")) {
-//
-//                    jdbcRS.updateDouble("hourly_rate", 21.0);
-//                    jdbcRS.updateRow();
-//
-//                    displayRow("Updated record: ", jdbcRS);
-//                    //Updated record: : Eric | Jones | 21.00 | false
-//                    //Updated record: : Stacey | Shields | 21.00 | false
-//                    updatedRows++;
-//                }
-//            }
-//
-//            System.out.println("\nNumber of updated rows: " + updatedRows);
-//            //Number of updated rows: 2
+            System.out.println("Number of deleted rows: " + removedRows);
+            //Number of deleted rows: 1
 
         }
         catch (SQLException ex) {
             ex.printStackTrace();
         }
+
+//        try (JdbcRowSet jdbcRS = DBUtils.getJdbcRowSet("DeliveryService")) {
+//
+//            jdbcRS.setCommand("select * from delpartners where is_fulltime = false");
+//            jdbcRS.execute();
+//
+//            jdbcRS.last();
+//            int numPT = jdbcRS.getRow();
+//            System.out.println("Number of part-time partners: " + numPT);
+//            //Number of part-time partners: 2
+//
+//            if (numPT < 5) {
+//
+//                jdbcRS.moveToInsertRow();
+//
+//                jdbcRS.updateString("first_name", "Kylie");
+//                jdbcRS.updateString("last_name", "Kass");
+//                jdbcRS.updateDouble("hourly_rate", 22.0);
+//                jdbcRS.updateBoolean("is_fulltime", false);
+//
+//                jdbcRS.insertRow();
+//
+//                jdbcRS.last();
+//                displayRow("Added part-time partner: ", jdbcRS);
+//                //Added part-time partner: : Kylie | Kass | 22.00 | false
+//            }
+//        }
+//        catch (SQLException ex) {
+//            ex.printStackTrace();
+//        }
 
     }
 }
