@@ -6,6 +6,7 @@ import java.sql.Connection; // interface Connection
 import java.sql.SQLException; // class SQLException
 import javax.sql.rowset.JdbcRowSet; // interface JdbcRowSet
 import javax.sql.rowset.RowSetProvider; // class RowSetProvider
+import javax.sql.rowset.CachedRowSet; // interface CachedRowSet
 
 public class DBUtils {
 
@@ -52,6 +53,25 @@ public class DBUtils {
         }
 
         return jdbcRS;
+    }
+
+    public static CachedRowSet getCachedRowSet(String schemaName) {
+
+        CachedRowSet cachedRS = null;
+
+        try {
+            cachedRS = RowSetProvider.newFactory().createCachedRowSet();
+
+            cachedRS.setUrl(dbURL + schemaName);
+            cachedRS.setUsername(username);
+            cachedRS.setPassword(password);
+
+        }
+        catch (SQLException sqlex) {
+            sqlex.printStackTrace();
+        }
+
+        return cachedRS;
     }
 
 }

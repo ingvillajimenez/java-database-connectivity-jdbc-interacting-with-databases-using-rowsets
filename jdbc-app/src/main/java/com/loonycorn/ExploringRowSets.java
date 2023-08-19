@@ -1,7 +1,7 @@
 package com.loonycorn;
 
 import javax.sql.RowSet; // interface
-import javax.sql.rowset.JdbcRowSet; // interface JdbcRowSet
+import javax.sql.rowset.CachedRowSet; // interface CachedRowSet
 import java.sql.SQLException; // class SQLException
 
 public class ExploringRowSets {
@@ -19,59 +19,73 @@ public class ExploringRowSets {
 
     public static void main(String[] args) {
 
-        try (JdbcRowSet jdbcRS = DBUtils.getJdbcRowSet("DeliveryService")) {
+        try (CachedRowSet cachedRS = DBUtils.getCachedRowSet("DeliveryService")) {
 
-            jdbcRS.setCommand("select * from delpartners");
-            jdbcRS.execute();
+            cachedRS.setCommand("select * from delpartners");
+            cachedRS.execute();
 
-            int removedRows = 0;
+            System.out.println("Moving around in a CachedRowSet: \n");
 
-            while (jdbcRS.next()) {
+            cachedRS.first();
+            displayRow("first()", cachedRS);
+            //first(): Adam | Bell | 18.50 | true
 
-                if (jdbcRS.getBoolean("is_fulltime") == true
-                        && jdbcRS.getDouble("hourly_rate") > 20) {
+            cachedRS.relative(2);
+            displayRow("relative(2)", cachedRS);
+            //relative(2): Pam | Cruz | 21.00 | true
 
-                    displayRow("Removing row: ", jdbcRS);
-                    //Removing row: : Pam | Cruz | 21.00 | true
-                    jdbcRS.deleteRow();
+            cachedRS.previous();
+            displayRow("previous()", cachedRS);
+            //previous(): Eric | Jones | 23.00 | false
 
-                    removedRows++;
-                }
-            }
+            cachedRS.absolute(4);
+            displayRow("absolute(4)", cachedRS);
+            //absolute(4): Gav | Comey | 19.00 | true
 
-            System.out.println("Number of deleted rows: " + removedRows);
-            //Number of deleted rows: 1
+            cachedRS.last();
+            displayRow("last()", cachedRS);
+            //last(): Kylie | Kass | 22.00 | false
 
+            cachedRS.relative(-1);
+            displayRow("relative(-1)", cachedRS);
+            //relative(-1): Pablo | Hernandez | 19.50 | true
         }
         catch (SQLException ex) {
             ex.printStackTrace();
         }
 
-//        try (JdbcRowSet jdbcRS = DBUtils.getJdbcRowSet("DeliveryService")) {
+//        try (CachedRowSet cachedRS = DBUtils.getCachedRowSet("DeliveryService")) {
 //
-//            jdbcRS.setCommand("select * from delpartners where is_fulltime = false");
-//            jdbcRS.execute();
+//            System.out.println("\n####################\n");
+//            System.out.println("Retrieving all Delivery Partner details...\n");
 //
-//            jdbcRS.last();
-//            int numPT = jdbcRS.getRow();
-//            System.out.println("Number of part-time partners: " + numPT);
-//            //Number of part-time partners: 2
+//            cachedRS.setCommand("select * from delpartners");
 //
-//            if (numPT < 5) {
+//            cachedRS.execute();
 //
-//                jdbcRS.moveToInsertRow();
+//            int rowNum = 1;
 //
-//                jdbcRS.updateString("first_name", "Kylie");
-//                jdbcRS.updateString("last_name", "Kass");
-//                jdbcRS.updateDouble("hourly_rate", 22.0);
-//                jdbcRS.updateBoolean("is_fulltime", false);
+//            while (cachedRS.next()) {
 //
-//                jdbcRS.insertRow();
-//
-//                jdbcRS.last();
-//                displayRow("Added part-time partner: ", jdbcRS);
-//                //Added part-time partner: : Kylie | Kass | 22.00 | false
+//                displayRow("Row #" + rowNum, cachedRS);
+//                //Row #1: Adam | Bell | 18.50 | true
+//                //
+//                //Row #2: Eric | Jones | 23.00 | false
+//                //
+//                //Row #3: Pam | Cruz | 21.00 | true
+//                //
+//                //Row #4: Gav | Comey | 19.00 | true
+//                //
+//                //Row #5: Stacey | Shields | 23.00 | false
+//                //
+//                //Row #6: Marie | Woods | 19.00 | true
+//                //
+//                //Row #7: Pablo | Hernandez | 19.50 | true
+//                //
+//                //Row #8: Kylie | Kass | 22.00 | false
+//                rowNum++;
 //            }
+//
 //        }
 //        catch (SQLException ex) {
 //            ex.printStackTrace();
