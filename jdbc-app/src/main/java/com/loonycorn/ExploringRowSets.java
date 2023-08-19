@@ -29,112 +29,117 @@ public class ExploringRowSets {
             cachedRS.setCommand("select * from delpartners");
             cachedRS.execute(conn);
 
-            int updatedRows = 0;
+            int removedRows = 0;
 
             while (cachedRS.next()) {
 
-                if (!cachedRS.getBoolean("is_fulltime")) {
+                if (cachedRS.getBoolean("is_fulltime") == false
+                        && cachedRS.getDouble("hourly_rate") > 20) {
 
-                    cachedRS.updateDouble("hourly_rate", 26.0);
-                    cachedRS.updateRow();
+                    displayRow("Removing row: ", cachedRS);
+                    //Removing row: : Eric | Jones | 26.00 | false
+                    //
+                    //Removing row: : Stacey | Shields | 26.00 | false
+                    //
+                    //Removing row: : Kylie | Kass | 26.00 | false
+                    //
+                    //Removing row: : Brian | Walters | 25.00 | false
+                    cachedRS.deleteRow();
 
-                    displayRow("Updated record: ", cachedRS);
-                    //Updated record: : Eric | Jones | 26.00 | false
-                    //
-                    //Updated record: : Stacey | Shields | 26.00 | false
-                    //
-                    //Updated record: : Kylie | Kass | 26.00 | false
-                    updatedRows++;
+                    removedRows++;
                 }
             }
+
+            System.out.println("\nNumber of deleted rows: " + removedRows);
+            //Number of deleted rows: 4
 
             cachedRS.acceptChanges(conn);
 
             cachedRS.close();
-
-            System.out.println("\nNumber of updated rows: " + updatedRows);
-            //Number of updated rows: 3
-            // the update has taken effect in the DB
-
         }
         catch (SQLException ex) {
             ex.printStackTrace();
         }
 
-/*        try (CachedRowSet cachedRS = DBUtils.getCachedRowSet("DeliveryService")) {
-
-            cachedRS.setCommand("select * from delpartners");
-            cachedRS.execute();
-
-//            cachedRS.setAutoCommit(true); // Cannot resolve method 'setAutoCommit' in 'CachedRowSet'
-
-            int updatedRows = 0;
-
-            while (cachedRS.next()) {
-
-                if (!cachedRS.getBoolean("is_fulltime")) {
-
-                    cachedRS.updateDouble("hourly_rate", 25.0);
-                    cachedRS.updateRow();
-
-                    displayRow("Updated record: ", cachedRS);
-                    //Updated record: : Eric | Jones | 25.00 | false
-                    //
-                    //Updated record: : Stacey | Shields | 25.00 | false
-                    //
-                    //Updated record: : Kylie | Kass | 25.00 | false
-                    //In spite of the exception, the update did in fact get pushed through to the DB
-                    updatedRows++;
-                }
-            }
-
-            cachedRS.acceptChanges();
-            //java.sql.SQLException: Can't call commit when autocommit=true
-            //	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:67)
-            //	at com.mysql.cj.jdbc.ConnectionImpl.commit(ConnectionImpl.java:782)
-            //	at java.sql.rowset/com.sun.rowset.internal.CachedRowSetWriter.commit(CachedRowSetWriter.java:1408)
-            //	at java.sql.rowset/com.sun.rowset.CachedRowSetImpl.acceptChanges(CachedRowSetImpl.java:904)
-            //	at com.loonycorn.ExploringRowSets.main(ExploringRowSets.java:48)
-            //javax.sql.rowset.spi.SyncProviderException: Can't call commit when autocommit=true
-            //	at java.sql.rowset/com.sun.rowset.CachedRowSetImpl.acceptChanges(CachedRowSetImpl.java:923)
-            //	at com.loonycorn.ExploringRowSets.main(ExploringRowSets.java:48)
-
-            System.out.println("\nNumber of updated rows: " + updatedRows);
-
-        }
-        catch (SQLException ex) {
-            ex.printStackTrace();
-        }*/
-
-//        try (CachedRowSet cachedRS = DBUtils.getCachedRowSet("DeliveryService")) {
+//        try (Connection conn = DBUtils.getMysqlConnection("DeliveryService")) {
 //
-//            cachedRS.setCommand("select * from delpartners");
-//            cachedRS.execute();
+//            conn.setAutoCommit(false);
 //
-//            int updatedRows = 0;
+//            CachedRowSet cachedRS = DBUtils.getCachedRowSet("");
 //
-//            while (cachedRS.next()) {
+//            cachedRS.setCommand("select * from delpartners where is_fulltime = false");
+//            cachedRS.execute(conn);
 //
-//                if (!cachedRS.getBoolean("is_fulltime")) {
+//            cachedRS.last();
+//            int numPT = cachedRS.getRow();
+//            System.out.println("Number of part-time partners: " + numPT);
+//            //Number of part-time partners: 3
 //
-//                    cachedRS.updateDouble("hourly_rate", 25.0);
-//                    cachedRS.updateRow();
+//            if (numPT < 5) {
 //
-//                    displayRow("Updated record: ", cachedRS);
-//                    //Updated record: : Eric | Jones | 25.00 | false
-//                    //
-//                    //Updated record: : Stacey | Shields | 25.00 | false
-//                    //
-//                    //Updated record: : Kylie | Kass | 25.00 | false
-//                    updatedRows++;
-//                }
+//                cachedRS.moveToInsertRow();
+//
+//                cachedRS.updateNull("id");
+//                cachedRS.updateString("first_name", "Brian");
+//                cachedRS.updateString("last_name", "Walters");
+//                cachedRS.updateDouble("hourly_rate", 25.0);
+//                cachedRS.updateBoolean("is_fulltime", false);
+//
+//                cachedRS.insertRow();
+//                cachedRS.moveToCurrentRow();
+//
+//                cachedRS.last();
+//                displayRow("Added part-time partner: ", cachedRS);
+//                //Added part-time partner: : Brian | Walters | 25.00 | false
+//                // Inserting a new row was applied with an autoincrement for the id in the DB
 //            }
 //
-//            System.out.println("\nNumber of updated rows: " + updatedRows);
-//            //Number of updated rows: 3
-//            //The update has not taken place at the database end because there was not a commit.
-//            // It took place at the cachedRS
+//            cachedRS.acceptChanges(conn);
 //
+//            cachedRS.close();
+//        }
+//        catch (SQLException ex) {
+//            ex.printStackTrace();
+//        }
+
+//        try (Connection conn = DBUtils.getMysqlConnection("DeliveryService")) {
+//
+//            conn.setAutoCommit(false);
+//
+//            CachedRowSet cachedRS = DBUtils.getCachedRowSet("");
+//
+//            cachedRS.setCommand("select * from delpartners where is_fulltime = false");
+//            cachedRS.execute(conn);
+//
+//            cachedRS.last();
+//            int numPT = cachedRS.getRow();
+//            System.out.println("Number of part-time partners: " + numPT);
+//            //Number of part-time partners: 3
+//
+//            if (numPT < 5) {
+//
+//                cachedRS.moveToInsertRow();
+//
+//                cachedRS.updateString("first_name", "Brian");
+//                cachedRS.updateString("last_name", "Walters");
+//                cachedRS.updateDouble("hourly_rate", 25.0);
+//                cachedRS.updateBoolean("is_fulltime", false);
+//
+//                cachedRS.insertRow();
+//                //java.sql.SQLException: Failed on insert row
+//                //	at java.sql.rowset/com.sun.rowset.CachedRowSetImpl.insertRow(CachedRowSetImpl.java:5464)
+//                //	at com.loonycorn.ExploringRowSets.main(ExploringRowSets.java:45)
+//                cachedRS.moveToCurrentRow();
+//                  // Exception because there is no auto increment for the new row
+//                  // the update at the BD was not successful either
+//
+//                cachedRS.last();
+//                displayRow("Added part-time partner: ", cachedRS);
+//            }
+//
+//            cachedRS.acceptChanges(conn);
+//
+//            cachedRS.close();
 //        }
 //        catch (SQLException ex) {
 //            ex.printStackTrace();
