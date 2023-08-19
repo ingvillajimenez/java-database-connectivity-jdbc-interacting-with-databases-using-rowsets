@@ -44,7 +44,8 @@ public class ExploringRowSets {
 
             cachedRS.last();
             displayRow("last()", cachedRS);
-            //last(): Kylie | Kass | 22.00 | false
+            //last(): Kylie | Kass | 25.00 | false
+            // a new connection was established so that the update in the DB was read
 
             cachedRS.relative(-1);
             displayRow("relative(-1)", cachedRS);
@@ -56,38 +57,41 @@ public class ExploringRowSets {
 
 //        try (CachedRowSet cachedRS = DBUtils.getCachedRowSet("DeliveryService")) {
 //
-//            System.out.println("\n####################\n");
-//            System.out.println("Retrieving all Delivery Partner details...\n");
-//
 //            cachedRS.setCommand("select * from delpartners");
-//
 //            cachedRS.execute();
 //
-//            int rowNum = 1;
+//            System.out.println("Moving around in a CachedRowSet: \n");
 //
-//            while (cachedRS.next()) {
+//            cachedRS.first();
+//            displayRow("first()", cachedRS);
+//            //first(): Adam | Bell | 18.50 | true
 //
-//                displayRow("Row #" + rowNum, cachedRS);
-//                //Row #1: Adam | Bell | 18.50 | true
-//                //
-//                //Row #2: Eric | Jones | 23.00 | false
-//                //
-//                //Row #3: Pam | Cruz | 21.00 | true
-//                //
-//                //Row #4: Gav | Comey | 19.00 | true
-//                //
-//                //Row #5: Stacey | Shields | 23.00 | false
-//                //
-//                //Row #6: Marie | Woods | 19.00 | true
-//                //
-//                //Row #7: Pablo | Hernandez | 19.50 | true
-//                //
-//                //Row #8: Kylie | Kass | 22.00 | false
-//                rowNum++;
-//            }
+//            cachedRS.relative(2);
+//            displayRow("relative(2)", cachedRS);
+//            //relative(2): Pam | Cruz | 21.00 | true
 //
+//            cachedRS.previous();
+//            displayRow("previous()", cachedRS);
+//            //previous(): Eric | Jones | 23.00 | false
+//
+//            cachedRS.absolute(4);
+//            displayRow("absolute(4)", cachedRS);
+//            //absolute(4): Gav | Comey | 19.00 | true
+//
+//            System.out.println("\nSleeping for a minute...");
+//            Thread.sleep(60000);
+//
+//            cachedRS.last();
+//            cachedRS.refreshRow();
+//            displayRow("last()", cachedRS);
+//            //last(): Kylie | Kass | 22.00 | false
+//            //cachedRS was not able to pick up the updated value in the DB because cachedRS is disconnected to the DB
+//
+//            cachedRS.relative(-1);
+//            displayRow("relative(-1)", cachedRS);
+//            //relative(-1): Pablo | Hernandez | 19.50 | true
 //        }
-//        catch (SQLException ex) {
+//        catch (SQLException | InterruptedException ex) {
 //            ex.printStackTrace();
 //        }
 
